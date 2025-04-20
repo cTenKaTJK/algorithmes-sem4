@@ -1,103 +1,60 @@
-# ПЕРЕДЕЛАТЬ ПОДСЧЕТ УГЛА ОТНОСИТЕЛЬНО ВЕКТОРА 
-
-
-from math import atan, pi
+from math import atan2, pi
 from tkinter import *
 
 
-class Point:
-    def __init__(self, x, y):
-        self._x = x
-        self._y = y
-    
-    @property
-    def x(self):
-        return self._x
-    
-    @property
-    def y(self):
-        return self._y
-    
-    @x.setter
-    def x(self, x):
-        self._x = x
+def angle(dot1, dot2, dot3):
+   vec1 = (dot2[0] - dot1[0], dot2[1] - dot1[1])
+   vec2 = (dot3[0] - dot2[0], dot3[1] - dot2[1])
+   angle = atan2(vec2[1], vec2[0]) - atan2(vec1[1], vec1[0])
+   return angle * 180 / pi
 
-    @y.setter
-    def y(self, y):
-        self._y = y
-    
-    def __str__(self):
-        return f'({self._x}, {self._y})'
-
-
-class Vector:
-    def __init__(self, point1, point2):
-        x_delta = point2.x - point1.x
-        y_delta = point2.y - point1.y
-        if x_delta == 0 and y_delta > 0:
-            self._angle = 90
-        elif x_delta == 0 and y_delta <= 0:
-            self._angle = -90
-        else:
-            self._angle = atan(y_delta / x_delta) * 180 / pi
-            match x_delta > 0, y_delta > 0:
-                case False, True:
-                    self._angle += 180
-                case False, False:
-                    self._angle -= 180
-
-    
-    @property
-    def angle(self):
-        return self._angle
-    
-
-def jarvis_algorithm(points_list):
-    points_count = len(points_list)
-    curr_point = points_list[0]
-    perimeter = [curr_point]
+def jarvis_algorithm(points):
+    perimeter = [points[0]]
+    prev_point = (points[0][0], points[0][1] + 10)
     count = 0
-    while True:
-        ind = points_list.index(curr_point)
-        print(curr_point)
-        [print(i, end='') for i in points_list[:ind] + points_list[ind+1:]]
-        #print(points_list[:ind] + points_list[ind+1:])
-        print('\n', list(map(lambda x: Vector(curr_point, x).angle, points_list[:ind] + points_list[ind+1:])))
-        next_point = min(points_list[:ind] + points_list[ind+1:], key=lambda x: Vector(curr_point, x).angle)
-
+    while count < len(points)*2:
+        angles_list = list(angle(prev_point, perimeter[-1], dot) for dot in points)
+        next_point = points[angles_list.index(min(angles_list))]
+        print(min(angles_list))
+        prev_point = perimeter[-1]
         perimeter.append(next_point)
-        curr_point = next_point
-        
+        points.remove(next_point)
         if next_point == perimeter[0]:
             return perimeter
-
-        count += 1
-        if count > 1000:
-            return '>'
+    return '!'
 
 
 
 if __name__ == '__main__':
-    point1 = Point(200, 100)
-    point2 = Point(300, 200)
-    point3 = Point(100, 200)
-    point4 = Point(200, 200)
-    point5 = Point(200, 300)
-
-    points = [point1, point2, point3, point4, point5]
-    points.sort(key=lambda item: item.x)
-    ans = jarvis_algorithm(points)
-
     window = Tk()
     window.title('My App')
     canv = Canvas(bg="white", width=1000,height=1000)  
     canv.pack()
 
+    point1 = (200, 100)
+    point2 = (300, 200)
+    point3 = (200, 200)
+    point4 = (100, 200)
+    point5 = (200, 300)
+
+
+    points = [point1, point2, point3, point4, point5]
+    min_id = points.index(min(points, key=lambda item : item[0]))
+    points[min_id], points[0] = points[0], points[min_id]
+
+    if len(points) < 3:
+        print('NO')
+
     for dot in points:
-        canv.create_oval(dot.x - 2, dot.y - 2, dot.x + 2, dot.y + 2)
-    if ans != '>':
+        canv.create_oval(dot[0] - 2, dot[1] - 2, dot[0] + 2, dot[1] + 2)
+    
+    ans = jarvis_algorithm(points)
+
+    if ans != '!':
+        print('YES')
         for i in range(1, len(ans)):
-            canv.create_line(ans[i-1].x, ans[i-1].y, ans[i].x, ans[i].y)
+            canv.create_line(ans[i-1][0], ans[i-1][1], ans[i][0], ans[i][1])
+    else:
+        print('NO')
     window.mainloop()
-    #[print(i) for i in jarvis_algorithm(points)]
     
