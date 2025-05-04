@@ -6,6 +6,8 @@ def angle(dot1, dot2, dot3):
    vec1 = (dot2[0] - dot1[0], dot2[1] - dot1[1])
    vec2 = (dot3[0] - dot2[0], dot3[1] - dot2[1])
    angle = atan2(vec2[1], vec2[0]) - atan2(vec1[1], vec1[0])
+   if angle < 0:
+       return 360 + angle * 180 / pi
    return angle * 180 / pi
 
 def jarvis_algorithm(points):
@@ -15,7 +17,7 @@ def jarvis_algorithm(points):
     while count < len(points)*2:
         angles_list = list(angle(prev_point, perimeter[-1], dot) for dot in points)
         next_point = points[angles_list.index(min(angles_list))]
-        print(min(angles_list))
+        print(min(angles_list), '\t', *list(map(int, angles_list)))
         prev_point = perimeter[-1]
         perimeter.append(next_point)
         points.remove(next_point)
@@ -31,14 +33,18 @@ if __name__ == '__main__':
     canv = Canvas(bg="white", width=1000,height=1000)  
     canv.pack()
 
-    point1 = (200, 100)
-    point2 = (300, 200)
-    point3 = (200, 200)
-    point4 = (100, 200)
-    point5 = (200, 300)
-
-
-    points = [point1, point2, point3, point4, point5]
+    points = [
+        (200, 110),
+        (330, 200),
+        (200, 660),
+        (770, 350),
+        (350, 500),
+        (110, 200),
+        (200, 330),
+        (731, 314),
+        (148, 800),
+        ]
+    
     min_id = points.index(min(points, key=lambda item : item[0]))
     points[min_id], points[0] = points[0], points[min_id]
 
