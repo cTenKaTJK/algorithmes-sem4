@@ -11,7 +11,6 @@ def rabin_karp(text, pattern) -> int:
     pttr_hs = hash_func(pattern)
     for i in range(len(text) - pl):
         if hash_func(text[i:i + pl]) == pttr_hs:
-            print('!!!')
             if text[i:i + pl] == pattern:
                 return i
     return -1
